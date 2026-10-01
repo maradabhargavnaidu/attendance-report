@@ -1,0 +1,1265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Attendance Report Generator</title>
+
+    <!-- SheetJS - reads and creates Excel files in the browser -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        width: 100%;
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100vh;
+
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Arial,
+          sans-serif;
+
+        background: #f4f6f8;
+        color: #222;
+
+        overflow-x: hidden;
+      }
+
+      /* Main container */
+
+      .container {
+        width: 100%;
+        max-width: 900px;
+
+        margin: 0 auto;
+
+        padding: clamp(20px, 5vw, 60px) clamp(14px, 5vw, 30px);
+      }
+
+      /* Main card */
+
+      .card {
+        width: 100%;
+
+        background: #ffffff;
+
+        border-radius: clamp(10px, 2vw, 16px);
+
+        padding: clamp(20px, 5vw, 40px);
+
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Heading */
+
+      h1 {
+        margin: 0;
+
+        text-align: center;
+
+        font-size: clamp(24px, 5vw, 34px);
+
+        line-height: 1.2;
+      }
+
+      /* Subtitle */
+
+      .subtitle {
+        margin: 12px auto 30px;
+
+        max-width: 600px;
+
+        text-align: center;
+
+        color: #666;
+
+        font-size: clamp(14px, 2.5vw, 16px);
+
+        line-height: 1.6;
+      }
+
+      /* Upload area */
+
+      .upload-area {
+        width: 100%;
+
+        min-height: clamp(180px, 30vw, 240px);
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        padding: clamp(20px, 5vw, 40px);
+
+        border: 2px dashed #b8b8b8;
+
+        border-radius: 12px;
+
+        text-align: center;
+
+        cursor: pointer;
+
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .upload-area:hover {
+        border-color: #333;
+
+        background: #fafafa;
+      }
+
+      .upload-area:active {
+        transform: scale(0.99);
+      }
+
+      .upload-area input {
+        display: none;
+      }
+
+      .upload-icon {
+        font-size: clamp(32px, 8vw, 50px);
+
+        margin-bottom: 10px;
+      }
+
+      .upload-title {
+        font-size: clamp(15px, 3vw, 18px);
+
+        font-weight: 600;
+      }
+
+      .upload-description {
+        margin-top: 8px;
+
+        color: #777;
+
+        font-size: clamp(13px, 2.5vw, 15px);
+      }
+
+      /* Selected file */
+
+      .file-name {
+        max-width: 100%;
+
+        margin-top: 12px;
+
+        padding: 8px 12px;
+
+        border-radius: 6px;
+
+        background: #f1f3f5;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+      }
+
+      /* Button */
+
+      button {
+        width: 100%;
+
+        min-height: 52px;
+
+        margin-top: 24px;
+
+        padding: 12px 20px;
+
+        border: none;
+
+        border-radius: 8px;
+
+        background: #222;
+
+        color: white;
+
+        font-size: clamp(15px, 3vw, 17px);
+
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition:
+          background 0.2s ease,
+          transform 0.1s ease;
+      }
+
+      button:hover:not(:disabled) {
+        background: #444;
+      }
+
+      button:active:not(:disabled) {
+        transform: scale(0.99);
+      }
+
+      button:disabled {
+        background: #aaa;
+
+        cursor: not-allowed;
+      }
+
+      /* Status */
+
+      .status {
+        width: 100%;
+
+        margin-top: 20px;
+
+        padding: 14px 16px;
+
+        border-radius: 8px;
+
+        display: none;
+
+        font-size: clamp(13px, 2.5vw, 15px);
+
+        line-height: 1.5;
+
+        overflow-wrap: anywhere;
+      }
+
+      .success {
+        background: #e8f5e9;
+
+        color: #256029;
+      }
+
+      .error {
+        background: #ffebee;
+
+        color: #b71c1c;
+      }
+
+      .info {
+        background: #eef4ff;
+
+        color: #2456a6;
+      }
+
+      /* Statistics */
+
+      .stats {
+        width: 100%;
+
+        margin-top: 20px;
+
+        display: none;
+
+        grid-template-columns: repeat(3, 1fr);
+
+        gap: 12px;
+      }
+
+      .stat {
+        min-width: 0;
+
+        padding: 18px 12px;
+
+        background: #f7f7f7;
+
+        border-radius: 10px;
+
+        text-align: center;
+
+        font-size: clamp(12px, 2.5vw, 14px);
+
+        color: #666;
+      }
+
+      .stat strong {
+        display: block;
+
+        margin-bottom: 5px;
+
+        color: #222;
+
+        font-size: clamp(20px, 5vw, 28px);
+      }
+
+      /* Rules */
+
+      .rules {
+        width: 100%;
+
+        margin-top: 25px;
+
+        padding: clamp(16px, 4vw, 24px);
+
+        background: #f7f7f7;
+
+        border-radius: 10px;
+      }
+
+      .rules h3 {
+        margin: 0 0 14px;
+
+        font-size: clamp(16px, 3vw, 19px);
+      }
+
+      .rules ul {
+        margin: 0;
+
+        padding-left: 20px;
+      }
+
+      .rules li {
+        margin-bottom: 9px;
+
+        font-size: clamp(13px, 2.5vw, 15px);
+
+        line-height: 1.5;
+      }
+
+      /* Tablet */
+
+      @media (max-width: 700px) {
+        .container {
+          padding: 25px 16px;
+        }
+
+        .card {
+          padding: 24px 18px;
+        }
+
+        .stats {
+          grid-template-columns: repeat(3, 1fr);
+
+          gap: 8px;
+        }
+
+        .stat {
+          padding: 14px 8px;
+        }
+      }
+
+      /* Mobile */
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 14px 10px;
+        }
+
+        .card {
+          padding: 20px 14px;
+
+          border-radius: 10px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .subtitle {
+          margin-bottom: 22px;
+        }
+
+        .upload-area {
+          min-height: 180px;
+
+          padding: 20px 12px;
+        }
+
+        button {
+          min-height: 50px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+
+          gap: 8px;
+        }
+
+        .stat {
+          padding: 12px;
+        }
+
+        .rules {
+          padding: 16px;
+        }
+      }
+
+      /* Very small phones */
+
+      @media (max-width: 350px) {
+        .container {
+          padding: 10px 6px;
+        }
+
+        .card {
+          padding: 16px 10px;
+        }
+
+        h1 {
+          font-size: 21px;
+        }
+
+        .upload-area {
+          min-height: 160px;
+        }
+      }
+
+      /* Landscape mobile */
+
+      @media (max-height: 500px) and (orientation: landscape) {
+        .container {
+          padding-top: 15px;
+
+          padding-bottom: 15px;
+        }
+
+        .upload-area {
+          min-height: 150px;
+        }
+      }
+
+      /* Accessibility */
+
+      button:focus-visible,
+      .upload-area:focus-visible {
+        outline: 3px solid #777;
+
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Attendance Report Generator</h1>
+
+        <p class="subtitle">
+          Upload your attendance Excel or TXT file and generate the processed
+          report.
+        </p>
+
+        <!-- Upload -->
+
+        <label class="upload-area" for="fileInput">
+          <div style="font-size: 40px">📊</div>
+
+          <p>
+            <strong>Click to select Excel or TXT file</strong>
+          </p>
+
+          <p>.xlsx, .xls or .txt</p>
+
+          <!-- NOW SUPPORTS TXT -->
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.txt" />
+
+          <div class="file-name" id="fileName"></div>
+        </label>
+
+        <!-- Process -->
+
+        <button id="processButton" disabled>Process Attendance</button>
+
+        <!-- Status -->
+
+        <div id="status" class="status"></div>
+
+        <!-- Statistics -->
+
+        <div id="stats" class="stats">
+          <div class="stat">
+            <strong id="totalDays">0</strong>
+
+            Employee-Days
+          </div>
+
+          <div class="stat">
+            <strong id="completeDays">0</strong>
+
+            Complete
+          </div>
+
+          <div class="stat">
+            <strong id="missingDays">0</strong>
+
+            Missing Punch
+          </div>
+        </div>
+
+        <!-- Rules -->
+
+        <div class="rules">
+          <h3>Attendance Rules</h3>
+
+          <ul>
+            <li>
+              <strong>0 = IN</strong>
+            </li>
+
+            <li>
+              <strong>1 = OUT</strong>
+            </li>
+
+            <li>First IN of the date is used.</li>
+
+            <li>Last OUT of the same date is used.</li>
+
+            <li>Multiple OUT punches are allowed.</li>
+
+            <li>No punches are carried to another date.</li>
+
+            <li>If OUT is missing, Total Hours remains blank.</li>
+
+            <li>If IN is missing, Total Hours remains blank.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let selectedFile = null;
+
+      const fileInput = document.getElementById("fileInput");
+
+      const fileName = document.getElementById("fileName");
+
+      const processButton = document.getElementById("processButton");
+
+      const status = document.getElementById("status");
+
+      // ---------------------------------------------------------
+      // FILE SELECTION
+      // ---------------------------------------------------------
+
+      fileInput.addEventListener("change", function () {
+        selectedFile = this.files[0];
+
+        if (!selectedFile) {
+          processButton.disabled = true;
+
+          fileName.textContent = "";
+
+          return;
+        }
+
+        fileName.textContent = selectedFile.name;
+
+        processButton.disabled = false;
+
+        showStatus("File selected. Click Process Attendance.", "info");
+      });
+
+      // ---------------------------------------------------------
+      // PROCESS BUTTON
+      // ---------------------------------------------------------
+
+      processButton.addEventListener("click", async function () {
+        if (!selectedFile) {
+          return;
+        }
+
+        processButton.disabled = true;
+
+        showStatus("Processing attendance...", "info");
+
+        try {
+          const result = await processAttendance(selectedFile);
+
+          downloadExcel(result);
+
+          document.getElementById("stats").style.display = "grid";
+
+          document.getElementById("totalDays").textContent =
+            result.daily.length;
+
+          document.getElementById("completeDays").textContent =
+            result.daily.filter((row) => row.Status === "Complete").length;
+
+          document.getElementById("missingDays").textContent =
+            result.daily.filter(
+              (row) =>
+                row.Status === "Missing OUT" || row.Status === "Missing IN",
+            ).length;
+
+          showStatus(
+            "Attendance processed successfully. Your Excel report has been downloaded.",
+            "success",
+          );
+        } catch (error) {
+          console.error(error);
+
+          showStatus("Error: " + error.message, "error");
+        } finally {
+          processButton.disabled = false;
+        }
+      });
+
+      // ---------------------------------------------------------
+      // MAIN PROCESSING
+      // ---------------------------------------------------------
+
+      async function processAttendance(file) {
+        /*
+         * IMPORTANT:
+         * This function now accepts both Excel and TXT.
+         *
+         * The attendance logic below is exactly the same.
+         */
+
+        const rows = await readAttendanceFile(file);
+
+        if (!rows.length) {
+          throw new Error("The selected attendance file is empty.");
+        }
+
+        // -----------------------------------------------------
+        // VALIDATE COLUMNS
+        // -----------------------------------------------------
+
+        const requiredColumns = ["EnNo", "Name", "In/Out", "DateTime"];
+
+        const actualColumns = Object.keys(rows[0]);
+
+        const missingColumns = requiredColumns.filter(
+          (column) => !actualColumns.includes(column),
+        );
+
+        if (missingColumns.length) {
+          throw new Error(
+            "Invalid attendance file. Missing columns: " +
+              missingColumns.join(", "),
+          );
+        }
+
+        // -----------------------------------------------------
+        // CLEAN DATA
+        // -----------------------------------------------------
+
+        const records = [];
+
+        rows.forEach((row) => {
+          const empNo = Number(row["EnNo"]);
+
+          const name = row["Name"];
+
+          const direction = Number(row["In/Out"]);
+
+          const dateTime = parseAttendanceDate(row["DateTime"]);
+
+          if (
+            !Number.isFinite(empNo) ||
+            !dateTime ||
+            ![0, 1].includes(direction)
+          ) {
+            return;
+          }
+
+          records.push({
+            EnNo: empNo,
+
+            Name: name ?? "",
+
+            Direction: direction,
+
+            DateTime: dateTime,
+
+            Date: formatDateKey(dateTime),
+          });
+        });
+
+        if (!records.length) {
+          throw new Error("No valid attendance records were found.");
+        }
+
+        // -----------------------------------------------------
+        // SORT
+        // Employee → Date → Time
+        // -----------------------------------------------------
+
+        records.sort((a, b) => {
+          if (a.EnNo !== b.EnNo) {
+            return a.EnNo - b.EnNo;
+          }
+
+          if (a.Date !== b.Date) {
+            return a.Date.localeCompare(b.Date);
+          }
+
+          return a.DateTime - b.DateTime;
+        });
+
+        // -----------------------------------------------------
+        // GROUP BY EMPLOYEE + DATE
+        //
+        // VERY IMPORTANT:
+        // We only group records having the SAME calendar date.
+        //
+        // Example:
+        //
+        // July 8 22:00 OUT
+        // July 9 06:00 IN
+        //
+        // These are NOT paired.
+        // -----------------------------------------------------
+
+        const groups = new Map();
+
+        records.forEach((record) => {
+          const key = record.EnNo + "|" + record.Date;
+
+          if (!groups.has(key)) {
+            groups.set(key, []);
+          }
+
+          groups.get(key).push(record);
+        });
+
+        const daily = [];
+
+        const review = [];
+
+        const sortedRaw = [];
+
+        // -----------------------------------------------------
+        // DAILY PROCESSING
+        // -----------------------------------------------------
+
+        for (const [key, group] of groups) {
+          const empNo = group[0].EnNo;
+
+          const name = group[0].Name;
+
+          const date = group[0].Date;
+
+          // 0 = IN
+
+          const inPunches = group.filter((r) => r.Direction === 0);
+
+          // 1 = OUT
+
+          const outPunches = group.filter((r) => r.Direction === 1);
+
+          // FIRST IN
+
+          const punchIn = inPunches.length ? inPunches[0].DateTime : null;
+
+          // LAST OUT
+
+          const punchOut = outPunches.length
+            ? outPunches[outPunches.length - 1].DateTime
+            : null;
+
+          let totalHours = null;
+
+          let statusValue;
+
+          // -------------------------------------------------
+          // BOTH EXIST
+          // -------------------------------------------------
+
+          if (punchIn && punchOut) {
+            const milliseconds = punchOut - punchIn;
+
+            if (milliseconds >= 0) {
+              totalHours = milliseconds / (1000 * 60 * 60);
+
+              statusValue = "Complete";
+            } else {
+              statusValue = "Invalid punch order";
+
+              review.push({
+                EnNo: empNo,
+
+                Name: name,
+
+                Date: date,
+
+                "Punch In": formatDateTime(punchIn),
+
+                "Punch Out": formatDateTime(punchOut),
+
+                Reason: "OUT is earlier than IN on same date",
+              });
+            }
+          }
+
+          // -------------------------------------------------
+          // IN EXISTS BUT OUT DOESN'T
+          // -------------------------------------------------
+          else if (punchIn) {
+            statusValue = "Missing OUT";
+
+            review.push({
+              EnNo: empNo,
+
+              Name: name,
+
+              Date: date,
+
+              "Punch In": formatDateTime(punchIn),
+
+              "Punch Out": "",
+
+              Reason: "IN exists but no OUT on same date",
+            });
+          }
+
+          // -------------------------------------------------
+          // OUT EXISTS BUT IN DOESN'T
+          // -------------------------------------------------
+          else if (punchOut) {
+            statusValue = "Missing IN";
+
+            review.push({
+              EnNo: empNo,
+
+              Name: name,
+
+              Date: date,
+
+              "Punch In": "",
+
+              "Punch Out": formatDateTime(punchOut),
+
+              Reason: "OUT exists but no IN on same date",
+            });
+          } else {
+            statusValue = "No Punch";
+          }
+
+          // -------------------------------------------------
+          // DAILY OUTPUT
+          // -------------------------------------------------
+
+          daily.push({
+            EmpNo: empNo,
+
+            Name: name,
+
+            Date: date,
+
+            "Punch In": punchIn ? formatDateTime(punchIn) : "",
+
+            "Punch Out": punchOut ? formatDateTime(punchOut) : "",
+
+            "Total Hours":
+              totalHours !== null ? decimalHoursToHHMM(totalHours) : "",
+
+            Status: statusValue,
+
+            "IN Punch Count": inPunches.length,
+
+            "OUT Punch Count": outPunches.length,
+          });
+        }
+
+        // -----------------------------------------------------
+        // SORT DAILY OUTPUT
+        // -----------------------------------------------------
+
+        daily.sort((a, b) => {
+          if (a.EmpNo !== b.EmpNo) {
+            return a.EmpNo - b.EmpNo;
+          }
+
+          return a.Date.localeCompare(b.Date);
+        });
+
+        // -----------------------------------------------------
+        // SORT RAW DATA OUTPUT
+        // -----------------------------------------------------
+
+        records.forEach((record) => {
+          sortedRaw.push({
+            EnNo: record.EnNo,
+
+            Name: record.Name,
+
+            "In/Out": record.Direction,
+
+            DateTime: formatDateTime(record.DateTime),
+          });
+        });
+
+        return {
+          daily,
+
+          review,
+
+          sortedRaw,
+        };
+      }
+
+      // ---------------------------------------------------------
+      // FILE READER
+      // ---------------------------------------------------------
+      //
+      // Excel:
+      //   .xlsx
+      //   .xls
+      //
+      // TXT:
+      //   UTF-16
+      //   Tab-separated
+      //
+      // ---------------------------------------------------------
+
+      async function readAttendanceFile(file) {
+        const fileName = file.name.toLowerCase();
+
+        // -----------------------------------------------------
+        // EXCEL
+        // -----------------------------------------------------
+
+        if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+          const arrayBuffer = await file.arrayBuffer();
+
+          const workbook = XLSX.read(arrayBuffer, {
+            type: "array",
+            cellDates: true,
+          });
+
+          if (!workbook.SheetNames.length) {
+            throw new Error("The Excel file does not contain any sheets.");
+          }
+
+          const sheetName = workbook.SheetNames[0];
+
+          const worksheet = workbook.Sheets[sheetName];
+
+          return XLSX.utils.sheet_to_json(worksheet, {
+            defval: null,
+          });
+        }
+
+        // -----------------------------------------------------
+        // TXT
+        // -----------------------------------------------------
+
+        if (fileName.endsWith(".txt")) {
+          return await readTxtFile(file);
+        }
+
+        throw new Error(
+          "Unsupported file type. Please upload .xlsx, .xls or .txt.",
+        );
+      }
+
+      // ---------------------------------------------------------
+      // TXT READER
+      // ---------------------------------------------------------
+      //
+      // Your ALOG TXT file is UTF-16 and tab-separated.
+      //
+      // Example:
+      //
+      // No    TMNo    EnNo    Name    ...    In/Out    DateTime
+      //
+      // ---------------------------------------------------------
+
+      async function readTxtFile(file) {
+        const arrayBuffer = await file.arrayBuffer();
+
+        const bytes = new Uint8Array(arrayBuffer);
+
+        let encoding = "utf-8";
+
+        // -----------------------------------------------------
+        // UTF-16 LITTLE ENDIAN
+        // -----------------------------------------------------
+
+        if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+          encoding = "utf-16le";
+        }
+
+        // -----------------------------------------------------
+        // UTF-16 BIG ENDIAN
+        // -----------------------------------------------------
+        else if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+          encoding = "utf-16be";
+        }
+
+        // Decode TXT
+
+        const decoder = new TextDecoder(encoding);
+
+        let text = decoder.decode(arrayBuffer);
+
+        // Remove BOM
+
+        text = text.replace(/^\uFEFF/, "");
+
+        // -----------------------------------------------------
+        // PARSE TAB-SEPARATED DATA
+        // -----------------------------------------------------
+
+        const workbook = XLSX.read(text, {
+          type: "string",
+          FS: "\t",
+        });
+
+        if (!workbook.SheetNames.length) {
+          throw new Error("The TXT file could not be read.");
+        }
+
+        const sheetName = workbook.SheetNames[0];
+
+        const worksheet = workbook.Sheets[sheetName];
+
+        return XLSX.utils.sheet_to_json(worksheet, {
+          defval: null,
+        });
+      }
+
+      // ---------------------------------------------------------
+      // DATE PARSER
+      // ---------------------------------------------------------
+
+      function parseAttendanceDate(value) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+
+        // Already JavaScript Date
+
+        if (Object.prototype.toString.call(value) === "[object Date]") {
+          return isNaN(value.getTime()) ? null : value;
+        }
+
+        // Excel serial number
+
+        if (typeof value === "number") {
+          const parsed = XLSX.SSF.parse_date_code(value);
+
+          if (!parsed) {
+            return null;
+          }
+
+          return new Date(
+            parsed.y,
+
+            parsed.m - 1,
+
+            parsed.d,
+
+            parsed.H,
+
+            parsed.M,
+
+            parsed.S,
+          );
+        }
+
+        const stringValue = String(value).trim();
+
+        if (!stringValue) {
+          return null;
+        }
+
+        // -----------------------------------------------------
+        // TXT FORMAT
+        //
+        // 2026-07-09 06:06:57
+        // -----------------------------------------------------
+
+        const match = stringValue.match(
+          /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+        );
+
+        if (match) {
+          const year = Number(match[1]);
+
+          const month = Number(match[2]);
+
+          const day = Number(match[3]);
+
+          const hours = Number(match[4]);
+
+          const minutes = Number(match[5]);
+
+          const seconds = Number(match[6]);
+
+          const parsed = new Date(
+            year,
+
+            month - 1,
+
+            day,
+
+            hours,
+
+            minutes,
+
+            seconds,
+          );
+
+          if (
+            parsed.getFullYear() === year &&
+            parsed.getMonth() === month - 1 &&
+            parsed.getDate() === day &&
+            parsed.getHours() === hours &&
+            parsed.getMinutes() === minutes &&
+            parsed.getSeconds() === seconds
+          ) {
+            return parsed;
+          }
+
+          return null;
+        }
+
+        // Fallback
+
+        const parsed = new Date(stringValue);
+
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      // ---------------------------------------------------------
+      // DATE KEY
+      // ---------------------------------------------------------
+
+      function formatDateKey(date) {
+        const year = date.getFullYear();
+
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return year + "-" + month + "-" + day;
+      }
+
+      // ---------------------------------------------------------
+      // DATE/TIME FORMAT
+      // ---------------------------------------------------------
+
+      function formatDateTime(date) {
+        const day = String(date.getDate()).padStart(2, "0");
+
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+
+        const year = date.getFullYear();
+
+        const hours = String(date.getHours()).padStart(2, "0");
+
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+
+        return `${day}-${month}-${year} ` + `${hours}:${minutes}:${seconds}`;
+      }
+
+      // ---------------------------------------------------------
+      // HOURS → HH:MM:SS
+      // ---------------------------------------------------------
+
+      function decimalHoursToHHMM(hours) {
+        const totalSeconds = Math.round(hours * 60 * 60);
+
+        const h = Math.floor(totalSeconds / 3600);
+
+        const m = Math.floor((totalSeconds % 3600) / 60);
+
+        const s = totalSeconds % 60;
+
+        return (
+          String(h).padStart(2, "0") +
+          ":" +
+          String(m).padStart(2, "0") +
+          ":" +
+          String(s).padStart(2, "0")
+        );
+      }
+
+      // ---------------------------------------------------------
+      // DOWNLOAD EXCEL
+      // ---------------------------------------------------------
+
+      function downloadExcel(result) {
+        const workbook = XLSX.utils.book_new();
+
+        // -----------------------------------------------------
+        // DAILY SUMMARY
+        // -----------------------------------------------------
+
+        const dailySheet = XLSX.utils.json_to_sheet(result.daily);
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+
+          dailySheet,
+
+          "Daily Summary",
+        );
+
+        // -----------------------------------------------------
+        // NEEDS REVIEW
+        // -----------------------------------------------------
+
+        const reviewSheet = XLSX.utils.json_to_sheet(result.review);
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+
+          reviewSheet,
+
+          "Needs Review",
+        );
+
+        // -----------------------------------------------------
+        // SORTED RAW DATA
+        // -----------------------------------------------------
+
+        const rawSheet = XLSX.utils.json_to_sheet(result.sortedRaw);
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+
+          rawSheet,
+
+          "Sorted Raw Data",
+        );
+
+        // Download
+
+        XLSX.writeFile(
+          workbook,
+
+          "attendance_processed.xlsx",
+        );
+      }
+
+      // ---------------------------------------------------------
+      // STATUS MESSAGE
+      // ---------------------------------------------------------
+
+      function showStatus(message, type) {
+        status.textContent = message;
+
+        status.className = "status " + type;
+
+        status.style.display = "block";
+      }
+    </script>
+  </body>
+</html>
