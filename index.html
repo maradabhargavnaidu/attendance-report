@@ -1,451 +1,218 @@
+i want to shrink more plz shrink as far as possible just upto the font can be
+visible that's it I've made it significantly more compact. Updated TXT ready
+Download ultra-compact attendance generator code Changes made Setting Previous
+New Excel font 8 pt 6 pt First column 10 8 Date columns 7 5.5 Row height 11 pt 8
+pt Print margins 0.2–0.3 0.1–0.15 Orientation Landscape Landscape Page width Fit
+to 1 page Fit to 1 page Note: 6 pt is very small. Excel may shrink it further
+when fitting all 31 days to the page width. Check Print Preview before printing
+to ensure the text remains readable.
+attendance_report_generator_ultra_compact.txt Document when i am trying to print
+the excel file only 10cols are coming in one page and remaining 10 cols coming
+in different page and one more 10cols coming in different page i dont want like
+this entire 31 cols should be in one page in table format neatly The issue is
+that Excel is ignoring the current “fit to one page wide” setting. I’ll correct
+the worksheet’s print settings so all 31 date columns, plus the Metric column,
+fit across one landscape page. If the report has many employees or months, it
+can still continue onto additional pages vertically. Updated code ready Download
+the complete updated HTML code in TXT format What changed: All 31 date columns +
+Metric column fit on one page width. Landscape orientation. Existing compact 6pt
+font and borders retained. Multiple employees/months can continue on subsequent
+pages vertically. After deploying the updated HTML, download a fresh Excel
+report and check Print Preview. In Excel, also verify Page Layout → Scale to Fit
+→ Width: 1 page, Height: Automatic. This prevents Excel from splitting the date
+columns across multiple pages. attendance_report_generator_one_page_width.txt
+Document same problem that's why i am telling to shirink teh cols maxxxxxxx u
+blody Worked for 15s You're right — the previous change didn't solve it. The
+date columns were still too wide, and the print scaling wasn't forcing the whole
+table onto one page. Sorry about that. I'll make the columns substantially
+narrower and set an explicit print scale, while keeping the time values and
+table borders visible.New version ready Download the maximum-shrink attendance
+generator code Changes: Metric column: 6 width. Each date column: 4.2 width
+(previously 5.5). Font: 5 pt (previously 6). Landscape A4 printing. Explicit 35%
+print scale. Important: Replace your existing GitHub Pages HTML with this
+updated code, then generate a new Excel file. Check Print Preview to confirm all
+31 date columns appear on one page horizontally. If the time values become too
+cramped, we can adjust the column width slightly without changing the attendance
+calculations. attendance_report_generator_max_shrink.txt Document srill 28 cols
+are coming can u shrink more Worked for 15s I've made another version with much
+narrower columns: Date columns reduced from 4.2 to 2.8. Metric column reduced to
+4.5. Font reduced from 5 pt to 4 pt. Removed the fixed 35% scale because it can
+conflict with Excel's fit-to-width setting. Kept landscape printing and
+fit-to-one-page-width. Download the revised complete code One important thing:
+Replace the HTML on GitHub Pages, refresh the website, and generate a completely
+new Excel file. The old Excel file won't receive these changes. If this still
+splits, send me a screenshot of Excel's Print Preview and I'll target the exact
+setting causing it. attendance_report_generator_all_columns_one_page.txt
+Document
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>Attendance Report Generator</title>
 
-    <!-- SheetJS - reads and creates Excel files in the browser -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
     <style>
       * {
         box-sizing: border-box;
       }
 
-      html {
-        width: 100%;
-        min-height: 100%;
-      }
-
       body {
         margin: 0;
-        width: 100%;
         min-height: 100vh;
-
-        font-family:
-          Inter,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          Roboto,
-          Arial,
-          sans-serif;
-
+        font-family: Arial, sans-serif;
         background: #f4f6f8;
         color: #222;
-
-        overflow-x: hidden;
       }
-
-      /* Main container */
 
       .container {
         width: 100%;
         max-width: 900px;
-
-        margin: 0 auto;
-
-        padding: clamp(20px, 5vw, 60px) clamp(14px, 5vw, 30px);
+        margin: auto;
+        padding: 40px 20px;
       }
 
-      /* Main card */
-
       .card {
-        width: 100%;
-
-        background: #ffffff;
-
-        border-radius: clamp(10px, 2vw, 16px);
-
-        padding: clamp(20px, 5vw, 40px);
-
+        background: white;
+        padding: 35px;
+        border-radius: 14px;
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
       }
 
-      /* Heading */
-
       h1 {
-        margin: 0;
-
         text-align: center;
-
-        font-size: clamp(24px, 5vw, 34px);
-
-        line-height: 1.2;
+        margin-top: 0;
       }
-
-      /* Subtitle */
 
       .subtitle {
-        margin: 12px auto 30px;
-
-        max-width: 600px;
-
         text-align: center;
-
         color: #666;
-
-        font-size: clamp(14px, 2.5vw, 16px);
-
-        line-height: 1.6;
+        line-height: 1.5;
+        margin-bottom: 30px;
       }
 
-      /* Upload area */
-
       .upload-area {
-        width: 100%;
-
-        min-height: clamp(180px, 30vw, 240px);
-
-        display: flex;
-
-        flex-direction: column;
-
-        align-items: center;
-
-        justify-content: center;
-
-        padding: clamp(20px, 5vw, 40px);
-
-        border: 2px dashed #b8b8b8;
-
+        min-height: 200px;
+        border: 2px dashed #aaa;
         border-radius: 12px;
-
-        text-align: center;
-
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-
-        transition:
-          background 0.2s ease,
-          border-color 0.2s ease,
-          transform 0.2s ease;
+        padding: 25px;
+        text-align: center;
       }
 
       .upload-area:hover {
-        border-color: #333;
-
         background: #fafafa;
-      }
-
-      .upload-area:active {
-        transform: scale(0.99);
+        border-color: #333;
       }
 
       .upload-area input {
         display: none;
       }
 
-      .upload-icon {
-        font-size: clamp(32px, 8vw, 50px);
-
-        margin-bottom: 10px;
-      }
-
-      .upload-title {
-        font-size: clamp(15px, 3vw, 18px);
-
-        font-weight: 600;
-      }
-
-      .upload-description {
-        margin-top: 8px;
-
-        color: #777;
-
-        font-size: clamp(13px, 2.5vw, 15px);
-      }
-
-      /* Selected file */
-
       .file-name {
-        max-width: 100%;
-
-        margin-top: 12px;
-
-        padding: 8px 12px;
-
-        border-radius: 6px;
-
-        background: #f1f3f5;
-
-        font-size: 14px;
-
-        font-weight: 600;
-
-        overflow: hidden;
-
-        text-overflow: ellipsis;
-
-        white-space: nowrap;
+        margin-top: 10px;
+        font-weight: bold;
+        overflow-wrap: anywhere;
       }
-
-      /* Button */
 
       button {
         width: 100%;
-
-        min-height: 52px;
-
         margin-top: 24px;
-
-        padding: 12px 20px;
-
+        padding: 15px;
         border: none;
-
         border-radius: 8px;
-
         background: #222;
-
         color: white;
-
-        font-size: clamp(15px, 3vw, 17px);
-
-        font-weight: 600;
-
+        font-size: 16px;
+        font-weight: bold;
         cursor: pointer;
-
-        transition:
-          background 0.2s ease,
-          transform 0.1s ease;
       }
 
       button:hover:not(:disabled) {
         background: #444;
       }
 
-      button:active:not(:disabled) {
-        transform: scale(0.99);
-      }
-
       button:disabled {
         background: #aaa;
-
         cursor: not-allowed;
       }
 
-      /* Status */
-
       .status {
-        width: 100%;
-
-        margin-top: 20px;
-
-        padding: 14px 16px;
-
-        border-radius: 8px;
-
         display: none;
-
-        font-size: clamp(13px, 2.5vw, 15px);
-
+        margin-top: 20px;
+        padding: 14px;
+        border-radius: 8px;
         line-height: 1.5;
-
         overflow-wrap: anywhere;
       }
 
       .success {
+        display: block;
         background: #e8f5e9;
-
         color: #256029;
       }
 
       .error {
+        display: block;
         background: #ffebee;
-
         color: #b71c1c;
       }
 
       .info {
+        display: block;
         background: #eef4ff;
-
         color: #2456a6;
       }
 
-      /* Statistics */
-
       .stats {
-        width: 100%;
-
-        margin-top: 20px;
-
         display: none;
-
         grid-template-columns: repeat(3, 1fr);
-
         gap: 12px;
+        margin-top: 20px;
       }
 
       .stat {
-        min-width: 0;
-
-        padding: 18px 12px;
-
         background: #f7f7f7;
-
+        padding: 16px;
         border-radius: 10px;
-
         text-align: center;
-
-        font-size: clamp(12px, 2.5vw, 14px);
-
         color: #666;
       }
 
       .stat strong {
         display: block;
-
-        margin-bottom: 5px;
-
         color: #222;
-
-        font-size: clamp(20px, 5vw, 28px);
+        font-size: 25px;
+        margin-bottom: 5px;
       }
 
-      /* Rules */
-
       .rules {
-        width: 100%;
-
         margin-top: 25px;
-
-        padding: clamp(16px, 4vw, 24px);
-
+        padding: 20px;
         background: #f7f7f7;
-
         border-radius: 10px;
       }
 
-      .rules h3 {
-        margin: 0 0 14px;
-
-        font-size: clamp(16px, 3vw, 19px);
-      }
-
-      .rules ul {
-        margin: 0;
-
-        padding-left: 20px;
-      }
-
       .rules li {
-        margin-bottom: 9px;
-
-        font-size: clamp(13px, 2.5vw, 15px);
-
+        margin-bottom: 8px;
         line-height: 1.5;
       }
 
-      /* Tablet */
-
-      @media (max-width: 700px) {
+      @media (max-width: 600px) {
         .container {
-          padding: 25px 16px;
+          padding: 15px 10px;
         }
-
         .card {
-          padding: 24px 18px;
+          padding: 22px 15px;
         }
-
-        .stats {
-          grid-template-columns: repeat(3, 1fr);
-
-          gap: 8px;
-        }
-
-        .stat {
-          padding: 14px 8px;
-        }
-      }
-
-      /* Mobile */
-
-      @media (max-width: 480px) {
-        .container {
-          padding: 14px 10px;
-        }
-
-        .card {
-          padding: 20px 14px;
-
-          border-radius: 10px;
-        }
-
-        h1 {
-          font-size: 24px;
-        }
-
-        .subtitle {
-          margin-bottom: 22px;
-        }
-
-        .upload-area {
-          min-height: 180px;
-
-          padding: 20px 12px;
-        }
-
-        button {
-          min-height: 50px;
-        }
-
         .stats {
           grid-template-columns: 1fr;
-
-          gap: 8px;
         }
-
-        .stat {
-          padding: 12px;
-        }
-
-        .rules {
-          padding: 16px;
-        }
-      }
-
-      /* Very small phones */
-
-      @media (max-width: 350px) {
-        .container {
-          padding: 10px 6px;
-        }
-
-        .card {
-          padding: 16px 10px;
-        }
-
-        h1 {
-          font-size: 21px;
-        }
-
-        .upload-area {
-          min-height: 160px;
-        }
-      }
-
-      /* Landscape mobile */
-
-      @media (max-height: 500px) and (orientation: landscape) {
-        .container {
-          padding-top: 15px;
-
-          padding-bottom: 15px;
-        }
-
-        .upload-area {
-          min-height: 150px;
-        }
-      }
-
-      /* Accessibility */
-
-      button:focus-visible,
-      .upload-area:focus-visible {
-        outline: 3px solid #777;
-
-        outline-offset: 3px;
       }
     </style>
   </head>
@@ -456,81 +223,51 @@
         <h1>Attendance Report Generator</h1>
 
         <p class="subtitle">
-          Upload your attendance Excel or TXT file and generate the processed
-          report.
+          Upload your attendance Excel or TXT file and generate the
+          ultra-compact monthly attendance register.
         </p>
-
-        <!-- Upload -->
 
         <label class="upload-area" for="fileInput">
           <div style="font-size: 40px">📊</div>
-
-          <p>
-            <strong>Click to select Excel or TXT file</strong>
-          </p>
-
+          <p><strong>Click to select Excel or TXT file</strong></p>
           <p>.xlsx, .xls or .txt</p>
 
-          <!-- NOW SUPPORTS TXT -->
           <input type="file" id="fileInput" accept=".xlsx,.xls,.txt" />
 
           <div class="file-name" id="fileName"></div>
         </label>
 
-        <!-- Process -->
-
         <button id="processButton" disabled>Process Attendance</button>
 
-        <!-- Status -->
-
         <div id="status" class="status"></div>
-
-        <!-- Statistics -->
 
         <div id="stats" class="stats">
           <div class="stat">
             <strong id="totalDays">0</strong>
-
             Employee-Days
           </div>
 
           <div class="stat">
             <strong id="completeDays">0</strong>
-
             Complete
           </div>
 
           <div class="stat">
             <strong id="missingDays">0</strong>
-
             Missing Punch
           </div>
         </div>
 
-        <!-- Rules -->
-
         <div class="rules">
           <h3>Attendance Rules</h3>
-
           <ul>
-            <li>
-              <strong>0 = IN</strong>
-            </li>
-
-            <li>
-              <strong>1 = OUT</strong>
-            </li>
-
+            <li><strong>0 = IN</strong></li>
+            <li><strong>1 = OUT</strong></li>
             <li>First IN of the date is used.</li>
-
             <li>Last OUT of the same date is used.</li>
-
             <li>Multiple OUT punches are allowed.</li>
-
             <li>No punches are carried to another date.</li>
-
             <li>If OUT is missing, Total Hours remains blank.</li>
-
             <li>If IN is missing, Total Hours remains blank.</li>
           </ul>
         </div>
@@ -541,11 +278,8 @@
       let selectedFile = null;
 
       const fileInput = document.getElementById("fileInput");
-
       const fileName = document.getElementById("fileName");
-
       const processButton = document.getElementById("processButton");
-
       const status = document.getElementById("status");
 
       // ---------------------------------------------------------
@@ -557,14 +291,11 @@
 
         if (!selectedFile) {
           processButton.disabled = true;
-
           fileName.textContent = "";
-
           return;
         }
 
         fileName.textContent = selectedFile.name;
-
         processButton.disabled = false;
 
         showStatus("File selected. Click Process Attendance.", "info");
@@ -575,12 +306,9 @@
       // ---------------------------------------------------------
 
       processButton.addEventListener("click", async function () {
-        if (!selectedFile) {
-          return;
-        }
+        if (!selectedFile) return;
 
         processButton.disabled = true;
-
         showStatus("Processing attendance...", "info");
 
         try {
@@ -603,12 +331,11 @@
             ).length;
 
           showStatus(
-            "Attendance processed successfully. Your Excel report has been downloaded.",
+            "Attendance processed successfully. Your monthly Excel register has been downloaded.",
             "success",
           );
         } catch (error) {
           console.error(error);
-
           showStatus("Error: " + error.message, "error");
         } finally {
           processButton.disabled = false;
@@ -616,26 +343,17 @@
       });
 
       // ---------------------------------------------------------
-      // MAIN PROCESSING
+      // MAIN ATTENDANCE PROCESSING
       // ---------------------------------------------------------
 
       async function processAttendance(file) {
-        /*
-         * IMPORTANT:
-         * This function now accepts both Excel and TXT.
-         *
-         * The attendance logic below is exactly the same.
-         */
-
         const rows = await readAttendanceFile(file);
 
         if (!rows.length) {
           throw new Error("The selected attendance file is empty.");
         }
 
-        // -----------------------------------------------------
-        // VALIDATE COLUMNS
-        // -----------------------------------------------------
+        // Validate required columns
 
         const requiredColumns = ["EnNo", "Name", "In/Out", "DateTime"];
 
@@ -652,19 +370,14 @@
           );
         }
 
-        // -----------------------------------------------------
-        // CLEAN DATA
-        // -----------------------------------------------------
+        // Clean data
 
         const records = [];
 
         rows.forEach((row) => {
           const empNo = Number(row["EnNo"]);
-
           const name = row["Name"];
-
           const direction = Number(row["In/Out"]);
-
           const dateTime = parseAttendanceDate(row["DateTime"]);
 
           if (
@@ -677,13 +390,9 @@
 
           records.push({
             EnNo: empNo,
-
             Name: name ?? "",
-
             Direction: direction,
-
             DateTime: dateTime,
-
             Date: formatDateKey(dateTime),
           });
         });
@@ -692,10 +401,7 @@
           throw new Error("No valid attendance records were found.");
         }
 
-        // -----------------------------------------------------
-        // SORT
-        // Employee → Date → Time
-        // -----------------------------------------------------
+        // Sort by employee, date and time
 
         records.sort((a, b) => {
           if (a.EnNo !== b.EnNo) {
@@ -709,19 +415,8 @@
           return a.DateTime - b.DateTime;
         });
 
-        // -----------------------------------------------------
-        // GROUP BY EMPLOYEE + DATE
-        //
-        // VERY IMPORTANT:
-        // We only group records having the SAME calendar date.
-        //
-        // Example:
-        //
-        // July 8 22:00 OUT
-        // July 9 06:00 IN
-        //
-        // These are NOT paired.
-        // -----------------------------------------------------
+        // Group by employee + calendar date.
+        // Punches are never carried to another date.
 
         const groups = new Map();
 
@@ -736,47 +431,38 @@
         });
 
         const daily = [];
-
         const review = [];
-
         const sortedRaw = [];
 
-        // -----------------------------------------------------
-        // DAILY PROCESSING
-        // -----------------------------------------------------
+        // Process each employee-date group
 
         for (const [key, group] of groups) {
           const empNo = group[0].EnNo;
-
           const name = group[0].Name;
-
           const date = group[0].Date;
 
           // 0 = IN
 
-          const inPunches = group.filter((r) => r.Direction === 0);
+          const inPunches = group.filter((record) => record.Direction === 0);
 
           // 1 = OUT
 
-          const outPunches = group.filter((r) => r.Direction === 1);
+          const outPunches = group.filter((record) => record.Direction === 1);
 
-          // FIRST IN
+          // First IN of the date
 
           const punchIn = inPunches.length ? inPunches[0].DateTime : null;
 
-          // LAST OUT
+          // Last OUT of the date
 
           const punchOut = outPunches.length
             ? outPunches[outPunches.length - 1].DateTime
             : null;
 
           let totalHours = null;
-
           let statusValue;
 
-          // -------------------------------------------------
-          // BOTH EXIST
-          // -------------------------------------------------
+          // Both IN and OUT exist
 
           if (punchIn && punchOut) {
             const milliseconds = punchOut - punchIn;
@@ -790,73 +476,50 @@
 
               review.push({
                 EnNo: empNo,
-
                 Name: name,
-
                 Date: date,
-
                 "Punch In": formatDateTime(punchIn),
-
                 "Punch Out": formatDateTime(punchOut),
-
                 Reason: "OUT is earlier than IN on same date",
               });
             }
           }
 
-          // -------------------------------------------------
-          // IN EXISTS BUT OUT DOESN'T
-          // -------------------------------------------------
+          // IN exists but OUT does not
           else if (punchIn) {
             statusValue = "Missing OUT";
 
             review.push({
               EnNo: empNo,
-
               Name: name,
-
               Date: date,
-
               "Punch In": formatDateTime(punchIn),
-
               "Punch Out": "",
-
               Reason: "IN exists but no OUT on same date",
             });
           }
 
-          // -------------------------------------------------
-          // OUT EXISTS BUT IN DOESN'T
-          // -------------------------------------------------
+          // OUT exists but IN does not
           else if (punchOut) {
             statusValue = "Missing IN";
 
             review.push({
               EnNo: empNo,
-
               Name: name,
-
               Date: date,
-
               "Punch In": "",
-
               "Punch Out": formatDateTime(punchOut),
-
               Reason: "OUT exists but no IN on same date",
             });
           } else {
             statusValue = "No Punch";
           }
 
-          // -------------------------------------------------
-          // DAILY OUTPUT
-          // -------------------------------------------------
+          // Daily summary record
 
           daily.push({
             EmpNo: empNo,
-
             Name: name,
-
             Date: date,
 
             "Punch In": punchIn ? formatDateTime(punchIn) : "",
@@ -867,16 +530,12 @@
               totalHours !== null ? decimalHoursToHHMM(totalHours) : "",
 
             Status: statusValue,
-
             "IN Punch Count": inPunches.length,
-
             "OUT Punch Count": outPunches.length,
           });
         }
 
-        // -----------------------------------------------------
-        // SORT DAILY OUTPUT
-        // -----------------------------------------------------
+        // Sort daily output
 
         daily.sort((a, b) => {
           if (a.EmpNo !== b.EmpNo) {
@@ -886,51 +545,32 @@
           return a.Date.localeCompare(b.Date);
         });
 
-        // -----------------------------------------------------
-        // SORT RAW DATA OUTPUT
-        // -----------------------------------------------------
+        // Preserve sorted raw data
 
         records.forEach((record) => {
           sortedRaw.push({
             EnNo: record.EnNo,
-
             Name: record.Name,
-
             "In/Out": record.Direction,
-
             DateTime: formatDateTime(record.DateTime),
           });
         });
 
         return {
           daily,
-
           review,
-
           sortedRaw,
         };
       }
 
       // ---------------------------------------------------------
-      // FILE READER
-      // ---------------------------------------------------------
-      //
-      // Excel:
-      //   .xlsx
-      //   .xls
-      //
-      // TXT:
-      //   UTF-16
-      //   Tab-separated
-      //
+      // READ EXCEL OR TXT FILE
       // ---------------------------------------------------------
 
       async function readAttendanceFile(file) {
         const fileName = file.name.toLowerCase();
 
-        // -----------------------------------------------------
-        // EXCEL
-        // -----------------------------------------------------
+        // Excel reader
 
         if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
           const arrayBuffer = await file.arrayBuffer();
@@ -945,7 +585,6 @@
           }
 
           const sheetName = workbook.SheetNames[0];
-
           const worksheet = workbook.Sheets[sheetName];
 
           return XLSX.utils.sheet_to_json(worksheet, {
@@ -953,9 +592,7 @@
           });
         }
 
-        // -----------------------------------------------------
-        // TXT
-        // -----------------------------------------------------
+        // TXT reader
 
         if (fileName.endsWith(".txt")) {
           return await readTxtFile(file);
@@ -968,39 +605,25 @@
 
       // ---------------------------------------------------------
       // TXT READER
-      // ---------------------------------------------------------
-      //
-      // Your ALOG TXT file is UTF-16 and tab-separated.
-      //
-      // Example:
-      //
-      // No    TMNo    EnNo    Name    ...    In/Out    DateTime
-      //
+      // Handles UTF-16 tab-separated attendance files
       // ---------------------------------------------------------
 
       async function readTxtFile(file) {
         const arrayBuffer = await file.arrayBuffer();
-
         const bytes = new Uint8Array(arrayBuffer);
 
         let encoding = "utf-8";
 
-        // -----------------------------------------------------
-        // UTF-16 LITTLE ENDIAN
-        // -----------------------------------------------------
+        // UTF-16 Little Endian
 
         if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
           encoding = "utf-16le";
         }
 
-        // -----------------------------------------------------
-        // UTF-16 BIG ENDIAN
-        // -----------------------------------------------------
+        // UTF-16 Big Endian
         else if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
           encoding = "utf-16be";
         }
-
-        // Decode TXT
 
         const decoder = new TextDecoder(encoding);
 
@@ -1010,9 +633,7 @@
 
         text = text.replace(/^\uFEFF/, "");
 
-        // -----------------------------------------------------
-        // PARSE TAB-SEPARATED DATA
-        // -----------------------------------------------------
+        // Parse tab-separated values
 
         const workbook = XLSX.read(text, {
           type: "string",
@@ -1024,7 +645,6 @@
         }
 
         const sheetName = workbook.SheetNames[0];
-
         const worksheet = workbook.Sheets[sheetName];
 
         return XLSX.utils.sheet_to_json(worksheet, {
@@ -1041,7 +661,7 @@
           return null;
         }
 
-        // Already JavaScript Date
+        // JavaScript Date
 
         if (Object.prototype.toString.call(value) === "[object Date]") {
           return isNaN(value.getTime()) ? null : value;
@@ -1052,36 +672,23 @@
         if (typeof value === "number") {
           const parsed = XLSX.SSF.parse_date_code(value);
 
-          if (!parsed) {
-            return null;
-          }
+          if (!parsed) return null;
 
           return new Date(
             parsed.y,
-
             parsed.m - 1,
-
             parsed.d,
-
             parsed.H,
-
             parsed.M,
-
             parsed.S,
           );
         }
 
         const stringValue = String(value).trim();
 
-        if (!stringValue) {
-          return null;
-        }
+        if (!stringValue) return null;
 
-        // -----------------------------------------------------
-        // TXT FORMAT
-        //
-        // 2026-07-09 06:06:57
-        // -----------------------------------------------------
+        // TXT format: YYYY-MM-DD HH:mm:ss
 
         const match = stringValue.match(
           /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
@@ -1089,28 +696,18 @@
 
         if (match) {
           const year = Number(match[1]);
-
           const month = Number(match[2]);
-
           const day = Number(match[3]);
-
           const hours = Number(match[4]);
-
           const minutes = Number(match[5]);
-
           const seconds = Number(match[6]);
 
           const parsed = new Date(
             year,
-
             month - 1,
-
             day,
-
             hours,
-
             minutes,
-
             seconds,
           );
 
@@ -1170,7 +767,7 @@
       }
 
       // ---------------------------------------------------------
-      // HOURS → HH:MM:SS
+      // HOURS TO HH:MM:SS
       // ---------------------------------------------------------
 
       function decimalHoursToHHMM(hours) {
@@ -1192,61 +789,293 @@
       }
 
       // ---------------------------------------------------------
+      // MONTHLY ATTENDANCE EXCEL SHEET
+      // ---------------------------------------------------------
+
+      function getTimeOnly(value) {
+        if (!value) return "";
+
+        const parts = String(value).split(" ");
+
+        return parts.length > 1 ? parts[1].slice(0, 5) : String(value);
+      }
+
+      function buildMonthlyAttendanceSheet(dailyRows) {
+        const monthGroups = new Map();
+
+        // Group by month and employee
+
+        dailyRows.forEach((row) => {
+          const [year, month, day] = String(row.Date).split("-").map(Number);
+
+          if (!year || !month || !day) return;
+
+          const monthKey = `${year}-${String(month).padStart(2, "0")}`;
+
+          const employeeKey = String(row.EmpNo);
+
+          if (!monthGroups.has(monthKey)) {
+            monthGroups.set(monthKey, new Map());
+          }
+
+          const employees = monthGroups.get(monthKey);
+
+          if (!employees.has(employeeKey)) {
+            employees.set(employeeKey, {
+              EmpNo: row.EmpNo,
+              Name: row.Name,
+              days: new Map(),
+            });
+          }
+
+          employees.get(employeeKey).days.set(day, row);
+        });
+
+        // Excel rows are built as an array of arrays
+
+        const aoa = [
+          ["MONTHLY EMPLOYEE ATTENDANCE REGISTER"],
+          [
+            "P = Complete | MO = Missing OUT | MI = Missing IN | ERR = Invalid punch order | Blank = No punch record",
+          ],
+          [],
+        ];
+
+        const merges = [];
+
+        // Metric column + maximum 31 date columns
+
+        const maxColumns = 32;
+
+        const sortedMonths = Array.from(monthGroups.keys()).sort();
+
+        sortedMonths.forEach((monthKey) => {
+          const [year, month] = monthKey.split("-").map(Number);
+
+          const daysInMonth = new Date(year, month, 0).getDate();
+
+          const monthLabel = new Date(year, month - 1, 1).toLocaleDateString(
+            "en-GB",
+            {
+              month: "long",
+              year: "numeric",
+            },
+          );
+
+          const employees = Array.from(monthGroups.get(monthKey).values()).sort(
+            (a, b) => Number(a.EmpNo) - Number(b.EmpNo),
+          );
+
+          // Month heading
+
+          aoa.push([monthLabel.toUpperCase()]);
+
+          const monthTitleRow = aoa.length - 1;
+
+          merges.push({
+            s: { r: monthTitleRow, c: 0 },
+            e: { r: monthTitleRow, c: maxColumns - 1 },
+          });
+
+          employees.forEach((employee) => {
+            // Employee heading
+
+            aoa.push([`Employee: ${employee.EmpNo} - ${employee.Name || ""}`]);
+
+            const employeeTitleRow = aoa.length - 1;
+
+            merges.push({
+              s: { r: employeeTitleRow, c: 0 },
+              e: { r: employeeTitleRow, c: daysInMonth },
+            });
+
+            // Day header
+
+            aoa.push([
+              "Metric",
+              ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+            ]);
+
+            const inTimes = ["InTime"];
+            const outTimes = ["OutTime"];
+            const durations = ["Duration"];
+            const statuses = ["Status"];
+
+            // Fill each calendar day
+
+            for (let day = 1; day <= daysInMonth; day++) {
+              const record = employee.days.get(day);
+
+              inTimes.push(record ? getTimeOnly(record["Punch In"]) : "");
+
+              outTimes.push(record ? getTimeOnly(record["Punch Out"]) : "");
+
+              durations.push(record ? record["Total Hours"] || "" : "");
+
+              let code = "";
+
+              if (record) {
+                if (record.Status === "Complete") {
+                  code = "P";
+                } else if (record.Status === "Missing OUT") {
+                  code = "MO";
+                } else if (record.Status === "Missing IN") {
+                  code = "MI";
+                } else if (record.Status === "Invalid punch order") {
+                  code = "ERR";
+                }
+              }
+
+              statuses.push(code);
+            }
+
+            // Four attendance rows for this employee
+
+            aoa.push(inTimes, outTimes, durations, statuses, []);
+          });
+
+          // Space between months
+
+          aoa.push([]);
+        });
+
+        // Convert array data into worksheet
+
+        const worksheet = XLSX.utils.aoa_to_sheet(aoa);
+
+        worksheet["!merges"] = merges;
+
+        // Compact column widths for landscape printing.
+        // The first column contains row labels; date columns are narrower.
+        worksheet["!cols"] = [
+          { wch: 4.5 },
+          ...Array.from({ length: 31 }, () => ({ wch: 2.8 })),
+        ];
+
+        // Apply compact font, alignment and borders to populated cells.
+        const range = XLSX.utils.decode_range(worksheet["!ref"]);
+
+        for (let R = range.s.r; R <= range.e.r; R++) {
+          for (let C = range.s.c; C <= range.e.c; C++) {
+            const cellAddress = XLSX.utils.encode_cell({
+              r: R,
+              c: C,
+            });
+
+            const cell = worksheet[cellAddress];
+
+            if (!cell) continue;
+
+            const rowValues = [];
+            for (let col = range.s.c; col <= range.e.c; col++) {
+              const current =
+                worksheet[XLSX.utils.encode_cell({ r: R, c: col })];
+              rowValues.push(current ? String(current.v ?? "") : "");
+            }
+
+            const isSectionHeading =
+              C === 0 && rowValues.filter((value) => value !== "").length === 1;
+
+            const isDayHeader = cell.v === "Metric";
+
+            cell.s = {
+              font: {
+                name: "Arial",
+                sz: 4,
+                bold: isSectionHeading || isDayHeader,
+              },
+              alignment: {
+                horizontal: C === 0 ? "left" : "center",
+                vertical: "center",
+                wrapText: false,
+              },
+              border: {
+                top: { style: "thin", color: { rgb: "B7B7B7" } },
+                bottom: { style: "thin", color: { rgb: "B7B7B7" } },
+                left: { style: "thin", color: { rgb: "B7B7B7" } },
+                right: { style: "thin", color: { rgb: "B7B7B7" } },
+              },
+            };
+          }
+        }
+
+        // Reduce row heights to keep the register compact.
+        worksheet["!rows"] = Array.from(
+          { length: range.e.r + 1 },
+          (_, index) => {
+            if (index === 0) return { hpt: 13 };
+            if (index < 3) return { hpt: 10 };
+            return { hpt: 8 };
+          },
+        );
+
+        // Force all date columns plus the Metric column onto one page width.
+        // Do not set a fixed scale together with fitToWidth: Excel may prioritize
+        // the fixed scale and split the columns across multiple pages.
+        worksheet["!pageSetup"] = {
+          orientation: "landscape",
+          paperSize: 9,
+          fitToWidth: 1,
+          fitToHeight: 0,
+        };
+
+        // Excel requires fitToPage inside sheetPr/pageSetUpPr.
+        worksheet["!sheetPr"] = {
+          pageSetUpPr: {
+            fitToPage: true,
+            autoPageBreaks: false,
+          },
+        };
+
+        // Narrow print margins.
+        worksheet["!margins"] = {
+          left: 0.1,
+          right: 0.1,
+          top: 0.15,
+          bottom: 0.15,
+          header: 0.05,
+          footer: 0.05,
+        };
+
+        return worksheet;
+      }
+
+      // ---------------------------------------------------------
       // DOWNLOAD EXCEL
       // ---------------------------------------------------------
 
       function downloadExcel(result) {
         const workbook = XLSX.utils.book_new();
 
-        // -----------------------------------------------------
-        // DAILY SUMMARY
-        // -----------------------------------------------------
+        // Sheet 1: All months and employees in one worksheet
 
-        const dailySheet = XLSX.utils.json_to_sheet(result.daily);
+        const monthlySheet = buildMonthlyAttendanceSheet(result.daily);
 
         XLSX.utils.book_append_sheet(
           workbook,
-
-          dailySheet,
-
-          "Daily Summary",
+          monthlySheet,
+          "Monthly Attendance",
         );
 
-        // -----------------------------------------------------
-        // NEEDS REVIEW
-        // -----------------------------------------------------
+        // Sheet 2: Needs Review
 
-        const reviewSheet = XLSX.utils.json_to_sheet(result.review);
-
-        XLSX.utils.book_append_sheet(
-          workbook,
-
-          reviewSheet,
-
-          "Needs Review",
+        const reviewSheet = XLSX.utils.json_to_sheet(
+          result.review.length
+            ? result.review
+            : [{ Message: "No records need review." }],
         );
 
-        // -----------------------------------------------------
-        // SORTED RAW DATA
-        // -----------------------------------------------------
+        XLSX.utils.book_append_sheet(workbook, reviewSheet, "Needs Review");
+
+        // Sheet 3: Sorted Raw Data
 
         const rawSheet = XLSX.utils.json_to_sheet(result.sortedRaw);
 
-        XLSX.utils.book_append_sheet(
-          workbook,
+        XLSX.utils.book_append_sheet(workbook, rawSheet, "Sorted Raw Data");
 
-          rawSheet,
+        // Download file
 
-          "Sorted Raw Data",
-        );
-
-        // Download
-
-        XLSX.writeFile(
-          workbook,
-
-          "attendance_processed.xlsx",
-        );
+        XLSX.writeFile(workbook, "attendance_processed.xlsx");
       }
 
       // ---------------------------------------------------------
