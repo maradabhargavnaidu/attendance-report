@@ -1,49 +1,3 @@
-i want to shrink more plz shrink as far as possible just upto the font can be
-visible that's it I've made it significantly more compact. Updated TXT ready
-Download ultra-compact attendance generator code Changes made Setting Previous
-New Excel font 8 pt 6 pt First column 10 8 Date columns 7 5.5 Row height 11 pt 8
-pt Print margins 0.2–0.3 0.1–0.15 Orientation Landscape Landscape Page width Fit
-to 1 page Fit to 1 page Note: 6 pt is very small. Excel may shrink it further
-when fitting all 31 days to the page width. Check Print Preview before printing
-to ensure the text remains readable.
-attendance_report_generator_ultra_compact.txt Document when i am trying to print
-the excel file only 10cols are coming in one page and remaining 10 cols coming
-in different page and one more 10cols coming in different page i dont want like
-this entire 31 cols should be in one page in table format neatly The issue is
-that Excel is ignoring the current “fit to one page wide” setting. I’ll correct
-the worksheet’s print settings so all 31 date columns, plus the Metric column,
-fit across one landscape page. If the report has many employees or months, it
-can still continue onto additional pages vertically. Updated code ready Download
-the complete updated HTML code in TXT format What changed: All 31 date columns +
-Metric column fit on one page width. Landscape orientation. Existing compact 6pt
-font and borders retained. Multiple employees/months can continue on subsequent
-pages vertically. After deploying the updated HTML, download a fresh Excel
-report and check Print Preview. In Excel, also verify Page Layout → Scale to Fit
-→ Width: 1 page, Height: Automatic. This prevents Excel from splitting the date
-columns across multiple pages. attendance_report_generator_one_page_width.txt
-Document same problem that's why i am telling to shirink teh cols maxxxxxxx u
-blody Worked for 15s You're right — the previous change didn't solve it. The
-date columns were still too wide, and the print scaling wasn't forcing the whole
-table onto one page. Sorry about that. I'll make the columns substantially
-narrower and set an explicit print scale, while keeping the time values and
-table borders visible.New version ready Download the maximum-shrink attendance
-generator code Changes: Metric column: 6 width. Each date column: 4.2 width
-(previously 5.5). Font: 5 pt (previously 6). Landscape A4 printing. Explicit 35%
-print scale. Important: Replace your existing GitHub Pages HTML with this
-updated code, then generate a new Excel file. Check Print Preview to confirm all
-31 date columns appear on one page horizontally. If the time values become too
-cramped, we can adjust the column width slightly without changing the attendance
-calculations. attendance_report_generator_max_shrink.txt Document srill 28 cols
-are coming can u shrink more Worked for 15s I've made another version with much
-narrower columns: Date columns reduced from 4.2 to 2.8. Metric column reduced to
-4.5. Font reduced from 5 pt to 4 pt. Removed the fixed 35% scale because it can
-conflict with Excel's fit-to-width setting. Kept landscape printing and
-fit-to-one-page-width. Download the revised complete code One important thing:
-Replace the HTML on GitHub Pages, refresh the website, and generate a completely
-new Excel file. The old Excel file won't receive these changes. If this still
-splits, send me a screenshot of Excel's Print Preview and I'll target the exact
-setting causing it. attendance_report_generator_all_columns_one_page.txt
-Document
 <!doctype html>
 <html lang="en">
   <head>
@@ -800,6 +754,30 @@ Document
         return parts.length > 1 ? parts[1].slice(0, 5) : String(value);
       }
 
+      // Convert an HH:MM or HH:MM:SS duration into total minutes.
+      function durationToMinutes(value) {
+        if (!value) return null;
+
+        const parts = String(value).split(":").map(Number);
+
+        if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) {
+          return null;
+        }
+
+        return parts[0] * 60 + parts[1] + (parts[2] || 0) / 60;
+      }
+
+      // Format overtime minutes as HH:MM.
+      function formatOvertime(minutes) {
+        const safeMinutes = Math.max(0, Math.floor(minutes));
+        const hours = Math.floor(safeMinutes / 60);
+        const mins = safeMinutes % 60;
+
+        return (
+          String(hours).padStart(2, "0") + ":" + String(mins).padStart(2, "0")
+        );
+      }
+
       function buildMonthlyAttendanceSheet(dailyRows) {
         const monthGroups = new Map();
 
@@ -836,7 +814,7 @@ Document
         const aoa = [
           ["MONTHLY EMPLOYEE ATTENDANCE REGISTER"],
           [
-            "P = Complete | MO = Missing OUT | MI = Missing IN | ERR = Invalid punch order | Blank = No punch record",
+            "P = Complete | MO = Missing OUT | MI = Missing IN | ERR = Invalid punch order | OT = time above 8h 30m | Weekday shown below date",
           ],
           [],
         ];
@@ -889,16 +867,26 @@ Document
               e: { r: employeeTitleRow, c: daysInMonth },
             });
 
-            // Day header
+            // Day number header and weekday header (Sun, Mon, Tue...).
 
             aoa.push([
               "Metric",
               ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
             ]);
 
+            aoa.push([
+              "Day",
+              ...Array.from({ length: daysInMonth }, (_, i) =>
+                new Date(year, month - 1, i + 1).toLocaleDateString("en-US", {
+                  weekday: "short",
+                }),
+              ),
+            ]);
+
             const inTimes = ["InTime"];
             const outTimes = ["OutTime"];
             const durations = ["Duration"];
+            const overtime = ["OT"];
             const statuses = ["Status"];
 
             // Fill each calendar day
@@ -910,7 +898,19 @@ Document
 
               outTimes.push(record ? getTimeOnly(record["Punch Out"]) : "");
 
-              durations.push(record ? record["Total Hours"] || "" : "");
+              const totalDuration = record ? record["Total Hours"] || "" : "";
+              durations.push(totalDuration);
+
+              // Standard shift is 8 hours 30 minutes. OT is only the
+              // positive time worked beyond that; incomplete days stay blank.
+              let overtimeValue = "";
+              if (record && record.Status === "Complete" && totalDuration) {
+                const workedMinutes = durationToMinutes(totalDuration);
+                if (workedMinutes !== null) {
+                  overtimeValue = formatOvertime(workedMinutes - 510);
+                }
+              }
+              overtime.push(overtimeValue);
 
               let code = "";
 
@@ -929,9 +929,9 @@ Document
               statuses.push(code);
             }
 
-            // Four attendance rows for this employee
+            // Attendance rows including overtime after the 8.5-hour shift.
 
-            aoa.push(inTimes, outTimes, durations, statuses, []);
+            aoa.push(inTimes, outTimes, durations, overtime, statuses, []);
           });
 
           // Space between months
